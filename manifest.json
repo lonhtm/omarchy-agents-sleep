@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "lonh.agents-sleep",
+  "name": "Agents Sleep",
+  "version": "1.0.0",
+  "author": "lonh",
+  "license": "MIT",
+  "description": "Suspend the computer once every Claude agent and subagent has finished working.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Agents Sleep",
+    "description": "Click to arm: the computer suspends once no Claude session has written its transcript for a few minutes. Click again to cancel.",
+    "category": "AI",
+    "aliases": ["agents-sleep", "sleep-when-done"],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "quietMinutes": 5
+    },
+    "schema": [
+      {
+        "key": "quietMinutes",
+        "type": "integer",
+        "label": "Quiet minutes before suspend",
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "defaultValue": 5,
+        "description": "How long every Claude transcript must stay unchanged before the computer suspends."
+      }
+    ]
+  }
+}

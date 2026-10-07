@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# agents-sleep: suspend the computer once every Claude agent and subagent is done.
+#
+# A working Claude session (CLI, desktop, editor) writes its transcript under
+# ~/.claude/projects on every turn, so "done" means no transcript has changed for
+# QUIET_MINUTES, confirmed twice in a row. The watcher runs as the transient user
+# unit "agents-sleep", so it survives a shell restart and is gone after the suspend.
+#
+#   agents-sleep on [--quiet N]   arm (default 5 quiet minutes)
+#   agents-sleep off              cancel
+#   agents-sleep status [--json]  armed or off, and active sessions
+#   agents-sleep log              follow the watcher
+#   agents-sleep watch            the loop itself (run by the unit)
+UNIT=agents-sleep
+QUIET_MINUTES=${QUIET_MINUTES:-5}
+PROJECTS="$HOME/.claude/projects"
+
+active_count() { find "$PROJECTS" -name '*.jsonl' -mmin "-$QUIET_MINUTES" 2>/dev/null | wc -l; }
+armed() { systemctl --user is-active --quiet "$UNIT"; }
+
+cmd=${1:-status}; shift || true
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --quiet) QUIET_MINUTES=$2; shift 2 ;;
+    --json) JSON=1; shift ;;
+    *) shift ;;
+  esac
+done
+
+case "$cmd" in
+  on|start)
+    if armed; then echo "Already armed."; exit 0; fi
+    systemd-run --user --quiet --unit="$UNIT" --description="Suspend once all Claude agents are done" \
+      --setenv=QUIET_MINUTES="$QUIET_MINUTES" "$(realpath "$0")" watch \
+      && echo "Armed: will suspend once all Claude agents have been quiet for $QUIET_MINUTES min." ;;
+  off|stop)
+    systemctl --user stop "$UNIT" 2>/dev/null; echo "Off." ;;
+  toggle)
+    if armed; then exec "$0" off; else exec "$0" on --quiet "$QUIET_MINUTES"; fi ;;
+  status)
+    if [ -n "$JSON" ]; then
+      printf '{"armed":%s,"active":%s,"quiet":%s}\n' "$(armed && echo true || echo false)" "$(active_count)" "$QUIET_MINUTES"
+    elif armed; then
+      echo "Armed. $(active_count) session(s) active in the last $QUIET_MINUTES min."
+    else
+      echo "Off."
+    fi ;;
+  log) exec journalctl --user -u "$UNIT" -f ;;
+  watch)
+    quiet_checks=0
+    while true; do
+      if [ "$(active_count)" -eq 0 ]; then quiet_checks=$((quiet_checks + 1)); else quiet_checks=0; fi
+      if [ "$quiet_checks" -ge 2 ]; then
+        notify-send -u critical -t 60000 "Agents done" "Suspending in 60 s. Cancel: agents-sleep off"
+        sleep 60
+        if [ "$(active_count)" -eq 0 ]; then systemctl suspend; exit 0; fi
+        quiet_checks=0
+      fi
+      sleep 60
+    done ;;
+  *) echo "usage: agents-sleep on [--quiet N] | off | toggle | status [--json] | log"; exit 1 ;;
+esac

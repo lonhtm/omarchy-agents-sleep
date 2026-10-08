@@ -16,6 +16,8 @@ BarWidget {
 
   property bool armed: false
   property int activeSessions: 0
+  // Like the Stay Awake indicator: hidden while off, dimmed on hover, full color when armed.
+  property bool hovered: false
 
   readonly property string icon: armed ? "󰒲" : "󰒳"
   readonly property string tooltip: armed
@@ -45,6 +47,8 @@ BarWidget {
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
+  HoverHandler { onHoveredChanged: root.hovered = hovered }
+
   Process {
     id: statusProc
     command: [root.helper, "status", "--json", "--quiet", String(root.quietMinutes)]
@@ -64,6 +68,10 @@ BarWidget {
     bar: root.bar
     text: root.icon
     active: root.armed
+    useActiveColor: false
+    keepSpace: true
+    dimmed: !root.armed
+    concealed: !root.armed && !root.hovered
     tooltipText: root.tooltip
     onPressed: function(b) { root.toggle() }
   }

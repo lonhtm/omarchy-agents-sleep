@@ -5,7 +5,8 @@ Suspend the computer once every Claude agent and subagent has finished working. 
 
 ![The Agents Sleep icon armed in the Omarchy bar, left of the clock](preview.png)
 
-- **Bar:** 󰒲 while armed, 󰒳 when off. Hover for how many sessions are still active.
+- **Bar:** 󰒲 in full color while armed. When off the slot is empty; hover it to reveal a dimmed 󰒳,
+  like the Stay Awake indicator. The tooltip shows how many sessions are still active.
 - **Done means quiet transcripts.** Every Claude session (Claude Code CLI, the desktop app, editor
   integrations and their subagents) writes its transcript under `~/.claude/projects` on each turn.
   The watcher treats the machine as done when no transcript has changed for the configured quiet

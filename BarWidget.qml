@@ -16,8 +16,14 @@ BarWidget {
 
   property bool armed: false
   property int activeSessions: 0
-  // Like the Stay Awake indicator: hidden while off, dimmed on hover, full color when armed.
-  property bool hovered: false
+  // Like the Stay Awake indicator: hidden while off, dimmed while the bar's
+  // center section is hovered (the same reveal flag the built-in indicators
+  // use), full color when armed. Hovering the slot itself also reveals it.
+  property bool selfHovered: false
+  readonly property bool hovered: selfHovered
+    || (bar && bar.centerSectionRevealHeld === true && bar.centerHoverRevealSuppressed !== true)
+
+  HoverHandler { onHoveredChanged: root.selfHovered = hovered }
 
   readonly property string icon: armed ? "󰒲" : "󰒳"
   readonly property string tooltip: armed
@@ -46,8 +52,6 @@ BarWidget {
 
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
-
-  HoverHandler { onHoveredChanged: root.hovered = hovered }
 
   Process {
     id: statusProc

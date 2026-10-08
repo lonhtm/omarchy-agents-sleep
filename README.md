@@ -3,10 +3,13 @@
 Suspend the computer once every Claude agent and subagent has finished working. One icon in the
 [Omarchy](https://omarchy.org) bar: click to arm, click to cancel, walk away.
 
-![The Agents Sleep icon armed in the Omarchy bar, left of the clock](preview.png)
+![The Agents Sleep icon armed in the Omarchy bar, beside the indicators](preview.png)
 
-- **Bar:** 󰒲 in full color while armed. When off the slot is empty; hover it to reveal a dimmed 󰒳,
-  like the Stay Awake indicator. The tooltip shows how many sessions are still active.
+- **Bar:** 󰒲 in full color while armed. When off the icon takes no space at all; hover the bar's
+  center to reveal a dimmed 󰒳 in the same spot, like Stay Awake. The tooltip shows how many
+  sessions are still active.
+- **Placement:** put the widget right after Indicators, next to the clock. The icon then keeps its
+  position whether armed or revealed, while the inactive indicators unfold away from it.
 - **Done means quiet transcripts.** Every Claude session (Claude Code CLI, the desktop app, editor
   integrations and their subagents) writes its transcript under `~/.claude/projects` on each turn.
   The watcher treats the machine as done when no transcript has changed for the configured quiet

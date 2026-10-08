@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "lonh.agents-sleep",
   "name": "Agents Sleep",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "lonh",
   "license": "MIT",
   "description": "Suspend the computer once every Claude agent and subagent has finished working.",
@@ -16,7 +16,7 @@
     "category": "AI",
     "aliases": ["agents-sleep", "sleep-when-done"],
     "allowMultiple": false,
-    "defaultSection": "right",
+    "defaultSection": "center",
     "defaults": {
       "quietMinutes": 5
     },

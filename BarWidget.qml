@@ -16,9 +16,12 @@ BarWidget {
 
   property bool armed: false
   property int activeSessions: 0
-  // Like the Stay Awake indicator: hidden while off, dimmed while the bar's
-  // center section is hovered (the same reveal flag the built-in indicators
-  // use), full color when armed. Hovering the slot itself also reveals it.
+  // Like the Stay Awake indicator: while off the slot collapses to nothing and
+  // only unfolds, dimmed, while the bar's center section is hovered (the same
+  // reveal flag the built-in indicators use); full color and always present
+  // when armed. Place it right after Indicators, next to the clock: the active
+  // block never changes width on hover, so the icon keeps its spot in either
+  // state while the inactive indicators unfold away from it.
   property bool selfHovered: false
   readonly property bool hovered: selfHovered
     || (bar && bar.centerSectionRevealHeld === true && bar.centerHoverRevealSuppressed !== true)
@@ -50,8 +53,11 @@ BarWidget {
     }
   }
 
-  implicitWidth: button.implicitWidth
-  implicitHeight: button.implicitHeight
+  readonly property bool shown: armed || hovered
+
+  implicitWidth: vertical || shown ? button.implicitWidth : 0
+  implicitHeight: !vertical || shown ? button.implicitHeight : 0
+  clip: true
 
   Process {
     id: statusProc
@@ -68,7 +74,7 @@ BarWidget {
 
   BarIconButton {
     id: button
-    anchors.fill: parent
+    anchors.centerIn: parent
     bar: root.bar
     text: root.icon
     active: root.armed
